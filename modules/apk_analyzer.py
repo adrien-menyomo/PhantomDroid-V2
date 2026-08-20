@@ -1,6 +1,6 @@
 """
 PhantomDroid — APK Static Analyzer Module
-Author: Mr. Psycho | @the_psycho_of_hackers
+Author: Cipher-Ghost
 """
 
 import zipfile

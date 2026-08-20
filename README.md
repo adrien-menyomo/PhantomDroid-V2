@@ -3,9 +3,9 @@
 # 👻 PhantomDroid
 ### Advanced Android Penetration Testing Framework
 
-**Author:** Mr. Psycho | Instagram: [@the_psycho_of_hackers](https://instagram.com/the_psycho_of_hackers)
+**Author:** Cipher-Ghost
 
-![Version](https://img.shields.io/badge/Version-2.0.0-blueviolet?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.1.0-blueviolet?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8+-cyan?style=for-the-badge&logo=python)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS-magenta?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Educational-red?style=for-the-badge)
@@ -18,7 +18,7 @@
 
 ## 📌 Overview
 
-**PhantomDroid** is a comprehensive, CLI-based Android security assessment framework targeting ethical hackers and professional penetration testers. It integrates multiple attack surfaces into a single tool with a hacker-aesthetic terminal interface.
+**PhantomDroid** is a CLI-based Android security assessment framework for authorized testing. It combines ADB utilities, APK analysis, exploit helpers, and live device mirroring into one terminal workflow.
 
 ---
 
@@ -33,6 +33,7 @@
 | 💥 **Exploit Engine** | Activity launch, broadcast trigger, content provider dump, deep link fuzzer, shell dropper |
 | 🎯 **Payload Generator** | msfvenom APK, reverse shell one-liners, ADB exploit scripts, obfuscation |
 | 📋 **Report Generator** | Dark-themed HTML report + JSON + CLI table with remediation advice |
+| 🪟 **scrcpy Launcher** | Live screen mirroring and remote control from PhantomDroid |
 
 ---
 
@@ -44,19 +45,20 @@ cd /path/to/phantomdroid
 # or
 git clone https://github.com/psychohackers/PhantomDroid.git
 
-#2. create a virtual environment
-python -m venv venv 
+# 2. Create a virtual environment
+python3 -m venv venv
 source venv/bin/activate
 
 # 3. Install Python dependencies
 pip3 install -r requirements.txt
 
-# 4. (Optional) Install ADB
-sudo apt install adb       # Debian/Ubuntu
-sudo pacman -S android-tools  # Arch
+# 4. Install system dependencies
+sudo apt update
+sudo apt install adb scrcpy
 
-# 5. (Optional for payload generation) Install Metasploit
-# https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html
+# 5. Optional tools
+# Metasploit: https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html
+# Frida, mitmproxy, and other tools can be installed separately when needed.
 ```
 
 ---
@@ -98,6 +100,9 @@ python3 phantomdroid.py --device ABC123 --logcat 200
 
 # Capture screenshot
 python3 phantomdroid.py --device ABC123 --screenshot
+
+# Launch live screen mirroring and control
+python3 phantomdroid.py --device ABC123 --scrcpy
 
 # Enable ADB over WiFi
 python3 phantomdroid.py --device ABC123 --adb-wifi
@@ -182,6 +187,11 @@ python3 phantomdroid.py --apk app.apk --device ABC123 --vuln-scan \
 | DB Extractor | Pull SQLite databases from app data directory |
 | Lock Bypass | PIN brute force via ADB keyevents |
 
+### Live Control
+- **scrcpy Launcher** - starts `scrcpy` against the selected device for a live mirrored screen
+- **ADB Shell** - interactive command-line access for device-side commands
+- **ADB Input Helpers** - swipe, keyevent, and launch actions for basic automation
+
 ### Payload Generator
 | Type | Description |
 |---|---|
@@ -210,12 +220,23 @@ PhantomDroid generates:
 | `rich` | Terminal UI |
 | `requests` | HTTP checks |
 | ADB (optional) | Device interaction |
-| scrcpy (optional) | Live screen mirroring and remote control |
+| scrcpy | Live screen mirroring and remote control |
 | Metasploit (optional) | APK payload generation |
 | Frida (optional) | Runtime instrumentation |
 | mitmproxy (optional) | Traffic interception |
 
-If you want live device mirroring and input control from PhantomDroid, install `scrcpy` and make sure it is available on your `PATH`.
+On Kali Linux:
+
+```bash
+sudo apt update
+sudo apt install adb scrcpy
+```
+
+If `scrcpy` is installed but PhantomDroid still cannot find it, set `SCRCPY_PATH` to the full path of the binary:
+
+```bash
+export SCRCPY_PATH=/usr/bin/scrcpy
+```
 
 ---
 
@@ -225,10 +246,10 @@ If you want live device mirroring and input control from PhantomDroid, install `
 > 
 > **Unauthorized use of this tool against systems you do not own or have explicit written permission to test is illegal** under the Computer Fraud and Abuse Act (CFAA), Computer Misuse Act, and equivalent laws in most jurisdictions.
 > 
-> The author **Mr. Psycho** and contributors assume **no liability** for any misuse or damage caused by this tool.
+> The author **Cipher-Ghost** and contributors assume **no liability** for any misuse or damage caused by this tool.
 
 ---
 
 <div align="center">
-  Made with 💜 by <strong>Mr. Psycho</strong> | <a href="https://instagram.com/the_psycho_of_hackers">@the_psycho_of_hackers</a>
+  Made with 💜 by <strong>Cipher-Ghost</strong>
 </div>

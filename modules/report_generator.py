@@ -1,6 +1,6 @@
 """
 PhantomDroid — Report Generator Module
-Author: Mr. Psycho | @the_psycho_of_hackers
+Author: Cipher-Ghost
 """
 
 import json
@@ -144,7 +144,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="target">{target}</div>
     <div>Generated: {timestamp}</div>
     <div>Report ID: {report_id}</div>
-    <div>Author: Mr. Psycho | @the_psycho_of_hackers</div>
+    <div>Author: Cipher-Ghost</div>
   </div>
 </header>
 <main>
@@ -164,7 +164,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   {sections}
 </main>
 <footer>
-  <p>PhantomDroid &copy; 2026 | Author: <a href="https://instagram.com/the_psycho_of_hackers">Mr. Psycho</a> | For authorized use only</p>
+  <p>PhantomDroid &copy; 2026 | Author: Cipher-Ghost | For authorized use only</p>
 </footer>
 </body>
 </html>
@@ -186,6 +186,39 @@ def _remediations() -> dict:
         "Task Hijacking": "Set android:taskAffinity='' and android:launchMode='singleTask' or use FLAG_ACTIVITY_NEW_DOCUMENT.",
         "SSL Pinning Bypassed": "Implement SSL pinning using OkHttp CertificatePinner or TrustKit; use multi-level pinning.",
     }
+
+
+def _lock_screen_section(lock_data: list) -> str:
+    """Build an HTML section for lock-screen audit results."""
+    if not lock_data:
+        return ""
+
+    latest = lock_data[-1] if isinstance(lock_data, list) else lock_data
+    confidence = latest.get("confidence", "N/A")
+    locked = "Yes" if latest.get("locked") else "No / unclear"
+    configured = "Yes" if latest.get("screen_lock_configured") else "No / unknown"
+    biometric = "Likely" if latest.get("biometric_enabled") else "No clear signal"
+    primary = latest.get("primary_guess", "Unknown")
+    secondary = latest.get("alternate_guess", "Unknown")
+    markers = ", ".join(latest.get("biometric_markers", [])) or "None"
+
+    rows = [
+        ("Device currently locked", locked),
+        ("Screen lock configured", configured),
+        ("Likely method", primary),
+        ("Secondary hint", secondary),
+        ("Biometric present", biometric),
+        ("Biometric markers", markers),
+        ("Confidence", f"{confidence}%"),
+        ("Password type raw", latest.get("raw", {}).get("password_type") or "N/A"),
+        ("Alternate raw", latest.get("raw", {}).get("password_type_alternate") or "N/A"),
+    ]
+
+    html = '<section><div class="section-title">🔐 Lock Screen Audit</div><table><thead><tr><th>Signal</th><th>Value</th></tr></thead><tbody>'
+    for label, value in rows:
+        html += f"<tr><td>{label}</td><td>{value}</td></tr>"
+    html += "</tbody></table></section>"
+    return html
 
 
 def generate_html_report(data: dict, output: str = "phantomdroid_report.html") -> str:
@@ -250,7 +283,9 @@ def generate_html_report(data: dict, output: str = "phantomdroid_report.html") -
             secrets_html += f"<tr><td>{s['file']}</td><td>{s['type']}</td><td>{s['snippet']}</td></tr>"
         secrets_html += "</tbody></table></section>"
 
-    sections = findings_html + perms_html + secrets_html + urls_html
+    lock_screen_html = _lock_screen_section(data.get("lock_screen", []))
+
+    sections = findings_html + lock_screen_html + perms_html + secrets_html + urls_html
 
     html = HTML_TEMPLATE.format(
         target=target,
@@ -266,7 +301,7 @@ def generate_html_report(data: dict, output: str = "phantomdroid_report.html") -
 
     with open(output, "w", encoding="utf-8") as f:
         f.write(html)
-    console.print(f"[bold green]✓ HTML report saved:[/] {output}")
+    console.print(f"[#3b82f6]✓ HTML report saved:[/] {output}")
     return output
 
 
@@ -274,7 +309,7 @@ def generate_json_report(data: dict, output: str = "phantomdroid_report.json") -
     """Generate a structured JSON report."""
     report = {
         "tool": "PhantomDroid",
-        "author": "Mr. Psycho | @the_psycho_of_hackers",
+        "author": "Cipher-Ghost",
         "generated": datetime.now().isoformat(),
         "target": data.get("target", "Unknown"),
         "summary": {
@@ -288,21 +323,21 @@ def generate_json_report(data: dict, output: str = "phantomdroid_report.json") -
     }
     with open(output, "w") as f:
         json.dump(report, f, indent=2, default=str)
-    console.print(f"[bold green]✓ JSON report saved:[/] {output}")
+    console.print(f"[#3b82f6]✓ JSON report saved:[/] {output}")
     return output
 
 
 def print_summary_table(data: dict):
     """Print a CLI summary table of findings."""
     findings = data.get("findings", [])
-    SEV_COLOR = {"CRITICAL": "bold red", "HIGH": "red", "MEDIUM": "yellow", "LOW": "green", "INFO": "cyan"}
+    SEV_COLOR = {"CRITICAL": "bold #8b5cf6", "HIGH": "#7c3aed", "MEDIUM": "#3b82f6", "LOW": "#2563eb", "INFO": "#6366f1"}
 
-    t = Table(title="[bold magenta]📋 PhantomDroid — Findings Summary[/]",
-              box=box.DOUBLE_EDGE, border_style="magenta", header_style="bold cyan")
+    t = Table(title="[bold #8b5cf6]📋 PhantomDroid — Findings Summary[/]",
+              box=box.DOUBLE_EDGE, border_style="#3b82f6", header_style="bold #8b5cf6")
     t.add_column("#",        style="dim",    width=4)
     t.add_column("Finding",  style="white",  min_width=30)
-    t.add_column("Severity", style="red",    width=12)
-    t.add_column("CVE",      style="cyan",   width=18)
+    t.add_column("Severity", style="#8b5cf6",    width=12)
+    t.add_column("CVE",      style="#3b82f6",   width=18)
     t.add_column("Detail",   style="dim",    min_width=40)
 
     sorted_findings = sorted(findings, key=lambda x: SEV_ORDER.get(x.get("severity", "INFO").upper(), 99))
@@ -317,3 +352,18 @@ def print_summary_table(data: dict):
             f.get("detail", "")[:60],
         )
     console.print(t)
+
+    lock_data = data.get("lock_screen", [])
+    if lock_data:
+        latest = lock_data[-1]
+        lock_table = Table(title="[bold #8b5cf6]🔐 Lock Screen Audit[/]",
+                           box=box.DOUBLE_EDGE, border_style="#3b82f6", header_style="bold #8b5cf6")
+        lock_table.add_column("Signal", style="#3b82f6", width=24)
+        lock_table.add_column("Value", style="white")
+        lock_table.add_row("Device currently locked", "Yes" if latest.get("locked") else "No / unclear")
+        lock_table.add_row("Screen lock configured", "Yes" if latest.get("screen_lock_configured") else "No / unknown")
+        lock_table.add_row("Likely method", latest.get("primary_guess", "Unknown"))
+        lock_table.add_row("Secondary hint", latest.get("alternate_guess", "Unknown"))
+        lock_table.add_row("Biometric present", "Likely" if latest.get("biometric_enabled") else "No clear signal")
+        lock_table.add_row("Confidence", f"{latest.get('confidence', 'N/A')}%")
+        console.print(lock_table)

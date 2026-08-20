@@ -1,12 +1,13 @@
 """
 PhantomDroid — ADB Manager Module
-Author: Mr. Psycho | @the_psycho_of_hackers
+Author: Cipher-Ghost
 """
 
 import subprocess
 import re
 import os
 import shutil
+import platform
 import time
 from rich.console import Console
 from rich.table import Table
@@ -50,9 +51,9 @@ def list_devices():
 
     lines = out.strip().splitlines()
     devices = []
-    table = Table(title="[bold magenta]📱 Connected Devices[/]", box=box.DOUBLE_EDGE,
-                  border_style="magenta", header_style="bold cyan")
-    table.add_column("Serial", style="cyan")
+    table = Table(title="[bold #8b5cf6]📱 Connected Devices[/]", box=box.DOUBLE_EDGE,
+                  border_style="#3b82f6", header_style="bold #8b5cf6")
+    table.add_column("Serial", style="#3b82f6")
     table.add_column("State", style="green")
     table.add_column("Model", style="yellow")
     table.add_column("Transport", style="white")
@@ -91,9 +92,9 @@ def device_info(device_id: str):
         "Serial": "ro.serialno",
     }
 
-    table = Table(title=f"[bold magenta]🔎 Device Info [{device_id}][/]",
-                  box=box.SIMPLE_HEAVY, border_style="cyan", header_style="bold cyan")
-    table.add_column("Property", style="cyan")
+    table = Table(title=f"[bold #8b5cf6]🔎 Device Info [{device_id}][/]",
+                  box=box.SIMPLE_HEAVY, border_style="#3b82f6", header_style="bold #8b5cf6")
+    table.add_column("Property", style="#3b82f6")
     table.add_column("Value", style="white")
 
     for label, prop in props.items():
@@ -119,8 +120,8 @@ def list_packages(device_id: str, pkg_filter: str = "all"):
 
     packages = [line.replace("package:", "").strip() for line in out.splitlines() if line.startswith("package:")]
 
-    table = Table(title=f"[bold magenta]📦 Packages ({pkg_filter}) — {len(packages)} found[/]",
-                  box=box.SIMPLE, border_style="cyan", header_style="bold cyan")
+    table = Table(title=f"[bold #8b5cf6]📦 Packages ({pkg_filter}) — {len(packages)} found[/]",
+                  box=box.SIMPLE, border_style="#3b82f6", header_style="bold #8b5cf6")
     table.add_column("#", style="dim", width=5)
     table.add_column("Package Name", style="white")
 
@@ -133,23 +134,23 @@ def list_packages(device_id: str, pkg_filter: str = "all"):
 
 def dumpsys(device_id: str, service: str = "package"):
     """Run dumpsys for a given service."""
-    console.print(f"[cyan]Running dumpsys {service}...[/]")
+    console.print(f"[#3b82f6]Running dumpsys {service}...[/]")
     out, _ = run_adb(["shell", "dumpsys", service], device_id)
     if out:
         console.print(Panel(out[:3000] + ("..." if len(out) > 3000 else ""),
-                            title=f"[bold]dumpsys {service}[/]", border_style="cyan"))
+                            title=f"[bold #3b82f6]dumpsys {service}[/]", border_style="#7c3aed"))
     return out
 
 
 def capture_logcat(device_id: str, lines: int = 200):
     """Capture last N lines of logcat."""
-    console.print(f"[cyan]Capturing last {lines} lines of logcat...[/]")
+    console.print(f"[#3b82f6]Capturing last {lines} lines of logcat...[/]")
     out, _ = run_adb(["shell", f"logcat -d -t {lines}"], device_id)
     filename = f"phantomdroid_logcat_{int(time.time())}.txt"
     if out:
         with open(filename, "w") as f:
             f.write(out)
-        console.print(f"[green]✓ Logcat saved to:[/] {filename}")
+            console.print(f"[#3b82f6]✓ Logcat saved to:[/] {filename}")
 
     # Highlight security-sensitive patterns
     patterns = ["password", "token", "secret", "api_key", "auth", "credential", "private"]
@@ -172,7 +173,7 @@ def pull_file(device_id: str, remote_path: str, local_path: str = "."):
     """Pull a file from device."""
     out, rc = run_adb(["pull", remote_path, local_path], device_id)
     if rc == 0:
-        console.print(f"[green]✓ Pulled:[/] {remote_path} → {local_path}")
+        console.print(f"[#3b82f6]✓ Pulled:[/] {remote_path} → {local_path}")
     else:
         console.print(f"[red]✗ Failed to pull {remote_path}[/]")
 
@@ -181,7 +182,7 @@ def push_file(device_id: str, local_path: str, remote_path: str):
     """Push a file to device."""
     out, rc = run_adb(["push", local_path, remote_path], device_id)
     if rc == 0:
-        console.print(f"[green]✓ Pushed:[/] {local_path} → {remote_path}")
+        console.print(f"[#3b82f6]✓ Pushed:[/] {local_path} → {remote_path}")
     else:
         console.print(f"[red]✗ Failed to push {local_path}[/]")
 
@@ -198,7 +199,7 @@ def take_screenshot(device_id: str):
 
 def enable_adb_wifi(device_id: str, port: int = 5555):
     """Enable ADB over WiFi."""
-    console.print(f"[cyan]Enabling ADB over WiFi on port {port}...[/]")
+    console.print(f"[#3b82f6]Enabling ADB over WiFi on port {port}...[/]")
     run_adb(["shell", f"setprop service.adb.tcp.port {port}"], device_id)
     run_adb(["shell", "stop adbd && start adbd"], device_id)
     ip_out, _ = run_adb(["shell", "ip addr show wlan0"], device_id)
@@ -231,12 +232,33 @@ def interactive_shell(device_id: str):
 
 def _find_scrcpy_executable():
     """Locate scrcpy on the current system."""
-    candidates = [
+    candidates = []
+
+    env_path = os.environ.get("SCRCPY_PATH")
+    if env_path:
+        candidates.append(env_path)
+
+    candidates.extend([
         shutil.which("scrcpy"),
         shutil.which("scrcpy.exe"),
-        r"C:\Program Files\Scrcpy\scrcpy.exe",
-        r"C:\Program Files (x86)\Scrcpy\scrcpy.exe",
-    ]
+    ])
+
+    if platform.system().lower().startswith("win"):
+        candidates.extend([
+            r"C:\Program Files\scrcpy\scrcpy.exe",
+            r"C:\Program Files\Scrcpy\scrcpy.exe",
+            r"C:\Program Files (x86)\scrcpy\scrcpy.exe",
+            r"C:\Program Files (x86)\Scrcpy\scrcpy.exe",
+            os.path.expandvars(r"%LOCALAPPDATA%\Programs\scrcpy\scrcpy.exe"),
+            os.path.expandvars(r"%USERPROFILE%\scoop\apps\scrcpy\current\scrcpy.exe"),
+            os.path.expandvars(r"%LOCALAPPDATA%\chocolatey\bin\scrcpy.exe"),
+        ])
+    else:
+        candidates.extend([
+            "/usr/bin/scrcpy",
+            "/usr/local/bin/scrcpy",
+            "/opt/homebrew/bin/scrcpy",
+        ])
 
     for candidate in candidates:
         if candidate and os.path.isfile(candidate):
@@ -249,8 +271,10 @@ def launch_scrcpy(device_id: str = None):
     scrcpy = _find_scrcpy_executable()
     if not scrcpy:
         console.print(
-            "[bold red]scrcpy not found.[/] Install it and make sure it is on PATH "
-            "or available at a standard install location."
+            "[bold red]scrcpy not found.[/]\n"
+            "Install scrcpy, or set [bold #3b82f6]SCRCPY_PATH[/] to the full path of "
+            "scrcpy.exe/scrcpy.\n"
+            "Example: [dim]set SCRCPY_PATH=C:\\\\Path\\\\To\\\\scrcpy.exe[/]"
         )
         return False
 

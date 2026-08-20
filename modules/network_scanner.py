@@ -1,6 +1,6 @@
 """
 PhantomDroid — Network Scanner Module
-Author: Mr. Psycho | @the_psycho_of_hackers
+Author: Cipher-Ghost
 """
 
 import subprocess
@@ -73,8 +73,8 @@ def get_wifi_info(device_id: str) -> dict:
             elif "security" in k or "key_mgmt" in k:
                 info["Security"] = v
 
-    table = Table(title="[bold magenta]📶 WiFi Info[/]", box=box.SIMPLE, border_style="cyan")
-    table.add_column("Property", style="cyan")
+    table = Table(title="[bold #8b5cf6]📶 WiFi Info[/]", box=box.SIMPLE, border_style="#3b82f6")
+    table.add_column("Property", style="#3b82f6")
     table.add_column("Value", style="white")
     for k, v in info.items():
         table.add_row(k, v)
@@ -95,10 +95,10 @@ def port_scan(target: str, ports: list = None, timeout: float = 0.8, max_workers
     if ports is None:
         ports = list(COMMON_PORTS.keys())
 
-    console.print(Panel(f"[bold cyan]Port Scanning:[/] {target}  ({len(ports)} ports)", border_style="magenta"))
+    console.print(Panel(f"[bold #3b82f6]Port Scanning:[/] {target}  ({len(ports)} ports)", border_style="#7c3aed"))
     open_ports = []
 
-    with console.status(f"[cyan]Scanning {len(ports)} ports on {target}...[/]"):
+    with console.status(f"[#3b82f6]Scanning {len(ports)} ports on {target}...[/]"):
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as ex:
             futures = {ex.submit(_scan_port, target, p, timeout): p for p in ports}
             for fut in concurrent.futures.as_completed(futures):
@@ -107,9 +107,9 @@ def port_scan(target: str, ports: list = None, timeout: float = 0.8, max_workers
                     open_ports.append(port)
 
     open_ports.sort()
-    table = Table(title=f"[bold green]Open Ports on {target}[/]", box=box.SIMPLE_HEAVY,
-                  border_style="green", header_style="bold green")
-    table.add_column("Port", style="cyan", width=8)
+    table = Table(title=f"[bold #8b5cf6]Open Ports on {target}[/]", box=box.SIMPLE_HEAVY,
+                  border_style="#3b82f6", header_style="bold #8b5cf6")
+    table.add_column("Port", style="#3b82f6", width=8)
     table.add_column("Service", style="white")
     table.add_column("Risk", style="red")
 
@@ -127,16 +127,16 @@ def port_scan(target: str, ports: list = None, timeout: float = 0.8, max_workers
     # Flag ADB port
     if 5555 in open_ports:
         console.print(Panel(
-            "[bold red]⚠  ADB port 5555 is OPEN![/]\n"
-            "The device may be exploitable via: [bold yellow]adb connect {target}:5555[/]",
-            border_style="red"))
+            "[bold #8b5cf6]⚠  ADB port 5555 is OPEN![/]\n"
+            "The device may be exploitable via: [bold #3b82f6]adb connect {target}:5555[/]",
+            border_style="#7c3aed"))
 
     return open_ports
 
 
 def discover_devices(subnet: str) -> list:
     """Discover live hosts on a subnet (e.g., 192.168.1.0/24)."""
-    console.print(f"[cyan]Discovering hosts on {subnet}...[/]")
+    console.print(f"[#3b82f6]Discovering hosts on {subnet}...[/]")
     try:
         base = ".".join(subnet.split(".")[:3])
         live = []
@@ -155,16 +155,16 @@ def discover_devices(subnet: str) -> list:
                                capture_output=True, text=True)
             if r.returncode == 0:
                 hosts.append(host)
-                console.print(f"  [green]✓ Live:[/] {host}")
+                console.print(f"  [#3b82f6]✓ Live:[/] {host}")
         return hosts
     except Exception as e:
-        console.print(f"[red]Error in discovery: {e}[/]")
+        console.print(f"[#8b5cf6]Error in discovery: {e}[/]")
         return []
 
 
 def check_ssl_pinning(device_id: str, package: str) -> dict:
     """Check for SSL pinning indicators in app's network stack via logcat."""
-    console.print(f"[cyan]Checking SSL pinning for {package}...[/]")
+    console.print(f"[#3b82f6]Checking SSL pinning for {package}...[/]")
     out = _run_adb(["shell", f"logcat -d | grep -i '{package}' | grep -iE 'ssl|tls|pin|certificate'"], device_id)
     
     indicators = []
@@ -177,18 +177,18 @@ def check_ssl_pinning(device_id: str, package: str) -> dict:
 
     result = {"pinning_detected": len(indicators) > 0, "indicators": indicators}
     if result["pinning_detected"]:
-        console.print(f"[bold yellow]⚠  SSL Pinning indicators found:[/]")
+        console.print(f"[bold #8b5cf6]⚠  SSL Pinning indicators found:[/]")
         for ind in indicators:
-            console.print(f"  [yellow]►[/] {ind}")
+            console.print(f"  [#3b82f6]►[/] {ind}")
     else:
-        console.print("[green]No obvious SSL pinning indicators in logcat.[/]")
+        console.print("[#3b82f6]No obvious SSL pinning indicators in logcat.[/]")
     return result
 
 
 def mitm_setup_guide():
     """Print a guide for setting up MitM with mitmproxy."""
     guide = """
-[bold magenta]── MitM Proxy Setup Guide ──────────────────────────────────[/]
+[bold #8b5cf6]── MitM Proxy Setup Guide ──────────────────────────────────[/]
 
 [bold cyan]1. Install mitmproxy:[/]
    pip install mitmproxy
@@ -209,4 +209,4 @@ def mitm_setup_guide():
 [bold cyan]6. Capture traffic:[/]
    mitmweb --mode transparent
     """
-    console.print(Panel(guide, title="[bold]MitM Setup Guide[/]", border_style="cyan"))
+    console.print(Panel(guide, title="[bold #3b82f6]MitM Setup Guide[/]", border_style="#7c3aed"))

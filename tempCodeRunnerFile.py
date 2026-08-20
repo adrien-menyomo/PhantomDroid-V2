@@ -55,7 +55,7 @@ BANNER_ART = r"""
 """
 
 BANNER_LINES_GRADIENT = [
-    "#2563eb", "#3b82f6", "#7c3aed", "#8b5cf6", "#4f46e5", "#6366f1"
+    "magenta", "bright_magenta", "purple", "deep_pink3", "orchid", "violet"
 ]
 
 def get_banner_status():
@@ -73,7 +73,7 @@ def get_banner_status():
     
     return (
         f"📅 [bold white]{now}[/]  |  "
-        f"📱 [bold #3b82f6]Devices:[/] {device_text}  |  "
+        f"📱 [bold cyan]Devices:[/] {device_text}  |  "
         f"🚀 [bold green]v{VERSION}[/]"
     )
 
@@ -109,7 +109,7 @@ def print_banner():
     animate_glitch_banner()
 
     # Tagline
-    tagline = Text("◈ ADVANCED ANDROID PENTESTING FRAMEWORK ◈", style="bold italic #8b5cf6")
+    tagline = Text("◈ ADVANCED ANDROID PENTESTING FRAMEWORK ◈", style="bold italic bright_magenta")
     console.print(Align.center(tagline))
     console.print()
 
@@ -117,10 +117,10 @@ def print_banner():
     status_text = get_banner_status()
     console.print(Align.center(Panel(
         status_text,
-        border_style="#7c3aed",
+        border_style="magenta",
         box=box.HORIZONTALS,
         padding=(0, 2),
-        title="[bold #3b82f6]System Status[/]",
+        title="[bold magenta]System Status[/]",
         title_align="left"
     )))
     console.print()
@@ -153,21 +153,21 @@ MENU_OPTIONS = [
 
 def print_main_menu():
     t = Table(
-        title=f"\n[bold #8b5cf6]👻  {TOOL_NAME}  —  Main Menu[/]\n",
+        title=f"\n[bold magenta]👻  {TOOL_NAME}  —  Main Menu[/]\n",
         box=box.DOUBLE_EDGE,
-        border_style="#3b82f6",
-        header_style="bold #8b5cf6",
+        border_style="magenta",
+        header_style="bold cyan",
         show_lines=True,
         min_width=70,
     )
-    t.add_column("  #  ",   style="bold #3b82f6",   width=5,  no_wrap=True)
+    t.add_column("  #  ",   style="bold cyan",   width=5,  no_wrap=True)
     t.add_column("  ",      style="",             width=3,  no_wrap=True)
     t.add_column("Module",  style="bold white",   min_width=24)
     t.add_column("Description", style="dim",      min_width=38)
 
     for num, icon, name, desc in MENU_OPTIONS:
         style = "on #1a0030" if num == "0" else ""
-        t.add_row(f"[bold #3b82f6] {num} [/]", icon, name, desc, style=style)
+        t.add_row(f"[bold cyan] {num} [/]", icon, name, desc, style=style)
 
     console.print(t)
 
@@ -185,7 +185,7 @@ def select_device() -> str:
         dev = devices[0]["serial"]
         console.print(f"[green]Auto-selected device:[/] {dev}")
         return dev
-    serial = Prompt.ask("[#3b82f6]Enter device serial[/]")
+    serial = Prompt.ask("[cyan]Enter device serial[/]")
     return serial
 
 
@@ -194,7 +194,7 @@ def select_device() -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def handle_device_manager():
-    console.rule("[bold #8b5cf6]📱 Device Manager[/]")
+    console.rule("[bold magenta]📱 Device Manager[/]")
     adb_manager.check_adb()
     device_id = select_device()
     if not device_id:
@@ -203,17 +203,17 @@ def handle_device_manager():
 
 
 def handle_apk_analyzer():
-    console.rule("[bold #8b5cf6]🔎 APK Static Analyzer[/]")
-    apk_path = Prompt.ask("[#3b82f6]APK file path[/]")
+    console.rule("[bold magenta]🔎 APK Static Analyzer[/]")
+    apk_path = Prompt.ask("[cyan]APK file path[/]")
     findings  = apk_analyzer.analyze_apk(apk_path)
-    if Confirm.ask("[#3b82f6]Save findings to report?[/]", default=True):
+    if Confirm.ask("[cyan]Save findings to report?[/]", default=True):
         _save_to_session(findings, "apk_analysis")
         console.print("[green]✓ Added to session report.[/]")
 
 
 def handle_network_scanner():
-    console.rule("[bold #8b5cf6]🌐 Network Scanner[/]")
-    choice = Prompt.ask("[#3b82f6]Scan mode[/]", choices=["device", "host", "wifi", "discover", "mitm"], default="device")
+    console.rule("[bold magenta]🌐 Network Scanner[/]")
+    choice = Prompt.ask("[cyan]Scan mode[/]", choices=["device", "host", "wifi", "discover", "mitm"], default="device")
 
     if choice == "device":
         device_id = select_device()
@@ -221,14 +221,14 @@ def handle_network_scanner():
             return
         ip = network_scanner.get_device_ip(device_id)
         if ip:
-            console.print(f"[#3b82f6]Device IP:[/] {ip}")
+            console.print(f"[green]Device IP:[/] {ip}")
             network_scanner.port_scan(ip)
         else:
             console.print("[red]Could not determine device IP.[/]")
 
     elif choice == "host":
-        target = Prompt.ask("[#3b82f6]Target IP/hostname[/]")
-        port_range = Prompt.ask("[#3b82f6]Port range (comma-list or 'all')[/]", default="common")
+        target = Prompt.ask("[cyan]Target IP/hostname[/]")
+        port_range = Prompt.ask("[cyan]Port range (comma-list or 'all')[/]", default="common")
         if port_range == "all":
             ports = list(range(1, 65536))
         elif port_range == "common":
@@ -243,7 +243,7 @@ def handle_network_scanner():
             network_scanner.get_wifi_info(device_id)
 
     elif choice == "discover":
-        subnet = Prompt.ask("[#3b82f6]Subnet (e.g. 192.168.1)[/]")
+        subnet = Prompt.ask("[cyan]Subnet (e.g. 192.168.1)[/]")
         network_scanner.discover_devices(subnet)
 
     elif choice == "mitm":
@@ -251,55 +251,55 @@ def handle_network_scanner():
 
 
 def handle_vulnerability_scanner():
-    console.rule("[bold #8b5cf6]🚨 Vulnerability Scanner[/]")
+    console.rule("[bold magenta]🚨 Vulnerability Scanner[/]")
     device_id = select_device()
     if not device_id:
         return
-    pkg = Prompt.ask("[#3b82f6]Target package (leave blank for device-level only)[/]", default="")
+    pkg = Prompt.ask("[cyan]Target package (leave blank for device-level only)[/]", default="")
     report = vulnerability_scanner.full_vulnerability_scan(device_id, pkg or None)
     _save_to_session(report, "vulnerability_scan")
 
 
 def handle_exploit_engine():
-    console.rule("[bold #8b5cf6]💥 Exploit Engine[/]")
+    console.rule("[bold magenta]💥 Exploit Engine[/]")
     device_id = select_device()
     if not device_id:
         return
 
     exploit_engine.exploit_menu(device_id)
-    choice = Prompt.ask("[#3b82f6]Select exploit[/]", choices=[str(i) for i in range(11)])
+    choice = Prompt.ask("[red]Select exploit[/]", choices=[str(i) for i in range(10)])
 
     if choice == "1":
-        pkg  = Prompt.ask("[#3b82f6]Package name[/]")
-        act  = Prompt.ask("[#3b82f6]Activity class[/]")
+        pkg  = Prompt.ask("[cyan]Package name[/]")
+        act  = Prompt.ask("[cyan]Activity class[/]")
         exploit_engine.launch_exported_activity(device_id, pkg, act)
 
     elif choice == "2":
-        pkg    = Prompt.ask("[#3b82f6]Package name[/]")
-        action = Prompt.ask("[#3b82f6]Intent action[/]")
+        pkg    = Prompt.ask("[cyan]Package name[/]")
+        action = Prompt.ask("[cyan]Intent action[/]")
         exploit_engine.trigger_broadcast_receiver(device_id, pkg, action)
 
     elif choice == "3":
-        uri = Prompt.ask("[#3b82f6]Content provider URI (content://...)[/]")
+        uri = Prompt.ask("[cyan]Content provider URI (content://...)[/]")
         exploit_engine.extract_content_provider(device_id, uri)
 
     elif choice == "4":
-        pkg    = Prompt.ask("[#3b82f6]Package name[/]")
-        scheme = Prompt.ask("[#3b82f6]Deep link scheme (e.g. myapp)[/]")
+        pkg    = Prompt.ask("[cyan]Package name[/]")
+        scheme = Prompt.ask("[cyan]Deep link scheme (e.g. myapp)[/]")
         exploit_engine.deep_link_fuzzer(device_id, pkg, scheme)
 
     elif choice == "5":
-        pkg = Prompt.ask("[#3b82f6]Package name[/]")
+        pkg = Prompt.ask("[cyan]Package name[/]")
         exploit_engine.frida_injection_guide(pkg)
 
     elif choice == "6":
-        lhost = Prompt.ask("[#3b82f6]LHOST[/]")
-        lport = IntPrompt.ask("[#3b82f6]LPORT[/]", default=4444)
+        lhost = Prompt.ask("[cyan]LHOST[/]")
+        lport = IntPrompt.ask("[cyan]LPORT[/]", default=4444)
         exploit_engine.shell_payload_dropper(device_id, lhost, lport)
 
     elif choice == "7":
-        pkg  = Prompt.ask("[#3b82f6]Package name[/]")
-        db   = Prompt.ask("[#3b82f6]Database filename[/]")
+        pkg  = Prompt.ask("[cyan]Package name[/]")
+        db   = Prompt.ask("[cyan]Database filename[/]")
         exploit_engine.extract_database(device_id, pkg, db)
 
     elif choice == "8":
@@ -308,64 +308,60 @@ def handle_exploit_engine():
     elif choice == "9":
         exploit_engine.enable_developer_options(device_id)
 
-    elif choice == "10":
-        audit = exploit_engine.audit_lock_screen_state(device_id)
-        _save_to_session({"lock_screen": [audit]}, "lock_screen_audit")
-
 
 def handle_payload_generator():
-    console.rule("[bold #8b5cf6]🎯 Payload Generator[/]")
+    console.rule("[bold magenta]🎯 Payload Generator[/]")
     payload_generator.payload_menu()
-    choice = Prompt.ask("[#3b82f6]Select payload type[/]", choices=["1", "2", "3", "4", "5", "0"])
+    choice = Prompt.ask("[red]Select payload type[/]", choices=["1", "2", "3", "4", "5", "0"])
 
     if choice == "1":
-        lhost  = Prompt.ask("[#3b82f6]LHOST[/]")
-        lport  = IntPrompt.ask("[#3b82f6]LPORT[/]", default=4444)
-        ptype  = Prompt.ask("[#3b82f6]Payload type[/]",
+        lhost  = Prompt.ask("[cyan]LHOST[/]")
+        lport  = IntPrompt.ask("[cyan]LPORT[/]", default=4444)
+        ptype  = Prompt.ask("[cyan]Payload type[/]",
                              choices=["reverse_tcp", "reverse_https", "reverse_http", "shell_tcp"],
                              default="reverse_tcp")
-        output = Prompt.ask("[#3b82f6]Output file[/]", default="payload.apk")
+        output = Prompt.ask("[cyan]Output file[/]", default="payload.apk")
         payload_generator.generate_msfvenom_apk(lhost, lport, ptype, output)
 
     elif choice == "2":
-        action = Prompt.ask("[#3b82f6]Intent action[/]")
-        comp   = Prompt.ask("[#3b82f6]Component (pkg/class or blank)[/]", default="")
-        data   = Prompt.ask("[#3b82f6]Data URI (or blank)[/]", default="")
+        action = Prompt.ask("[cyan]Intent action[/]")
+        comp   = Prompt.ask("[cyan]Component (pkg/class or blank)[/]", default="")
+        data   = Prompt.ask("[cyan]Data URI (or blank)[/]", default="")
         payload_generator.generate_intent_payload(action, comp or None, data or None)
 
     elif choice == "3":
-        lhost = Prompt.ask("[#3b82f6]LHOST[/]")
-        lport = IntPrompt.ask("[#3b82f6]LPORT[/]", default=4444)
+        lhost = Prompt.ask("[cyan]LHOST[/]")
+        lport = IntPrompt.ask("[cyan]LPORT[/]", default=4444)
         payload_generator.generate_reverse_shell_commands(lhost, lport)
 
     elif choice == "4":
-        lhost  = Prompt.ask("[#3b82f6]LHOST[/]")
-        lport  = IntPrompt.ask("[#3b82f6]LPORT[/]", default=4444)
-        output = Prompt.ask("[#3b82f6]Script filename[/]", default="adb_payload.sh")
+        lhost  = Prompt.ask("[cyan]LHOST[/]")
+        lport  = IntPrompt.ask("[cyan]LPORT[/]", default=4444)
+        output = Prompt.ask("[cyan]Script filename[/]", default="adb_payload.sh")
         payload_generator.generate_adb_payload_script(None, lhost, lport, output)
 
     elif choice == "5":
-        raw   = Prompt.ask("[#3b82f6]Payload to obfuscate[/]")
-        method = Prompt.ask("[#3b82f6]Obfuscation method[/]", choices=["base64", "hex"], default="base64")
+        raw   = Prompt.ask("[cyan]Payload to obfuscate[/]")
+        method = Prompt.ask("[cyan]Obfuscation method[/]", choices=["base64", "hex"], default="base64")
         payload_generator.obfuscate_payload(raw, method)
 
 
 def handle_report_generator():
-    console.rule("[bold #8b5cf6]📋 Report Generator[/]")
-    target = Prompt.ask("[#3b82f6]Target description (app/device name)[/]", default="Unknown Target")
+    console.rule("[bold magenta]📋 Report Generator[/]")
+    target = Prompt.ask("[cyan]Target description (app/device name)[/]", default="Unknown Target")
 
     # Build report from session
     data = _get_session()
     data["target"] = target
 
-    fmt = Prompt.ask("[#3b82f6]Report format[/]", choices=["html", "json", "both", "table"], default="html")
+    fmt = Prompt.ask("[cyan]Report format[/]", choices=["html", "json", "both", "table"], default="html")
 
     if fmt in ("html", "both"):
-        out = Prompt.ask("[#3b82f6]HTML output filename[/]", default="phantomdroid_report.html")
+        out = Prompt.ask("[cyan]HTML output filename[/]", default="phantomdroid_report.html")
         report_generator.generate_html_report(data, out)
 
     if fmt in ("json", "both"):
-        out = Prompt.ask("[#3b82f6]JSON output filename[/]", default="phantomdroid_report.json")
+        out = Prompt.ask("[cyan]JSON output filename[/]", default="phantomdroid_report.json")
         report_generator.generate_json_report(data, out)
 
     if fmt == "table":
@@ -373,71 +369,71 @@ def handle_report_generator():
 
 
 def handle_adb_wifi():
-    console.rule("[bold #8b5cf6]📡 ADB WiFi Connect[/]")
+    console.rule("[bold magenta]📡 ADB WiFi Connect[/]")
     device_id = select_device()
     if not device_id:
         return
-    port = IntPrompt.ask("[#3b82f6]Port[/]", default=5555)
+    port = IntPrompt.ask("[cyan]Port[/]", default=5555)
     ip, p = adb_manager.enable_adb_wifi(device_id, port)
 
 
 def handle_screenshot():
-    console.rule("[bold #8b5cf6]📸 Screenshot Capture[/]")
+    console.rule("[bold magenta]📸 Screenshot Capture[/]")
     device_id = select_device()
     if not device_id:
         return
     path = adb_manager.take_screenshot(device_id)
     if path:
-        console.print(f"[#3b82f6]✓ Screenshot saved:[/] {path}")
+        console.print(f"[bold green]✓ Screenshot saved:[/] {path}")
 
 
 def handle_package_manager():
-    console.rule("[bold #8b5cf6]📦 Package Manager[/]")
+    console.rule("[bold magenta]📦 Package Manager[/]")
     device_id = select_device()
     if not device_id:
         return
-    pkg_type = Prompt.ask("[#3b82f6]Package filter[/]",
+    pkg_type = Prompt.ask("[cyan]Package filter[/]",
                            choices=["all", "system", "third_party", "disabled"],
                            default="third_party")
     adb_manager.list_packages(device_id, pkg_type)
 
 
 def handle_logcat():
-    console.rule("[bold #8b5cf6]🐛 Logcat Analyzer[/]")
+    console.rule("[bold magenta]🐛 Logcat Analyzer[/]")
     device_id = select_device()
     if not device_id:
         return
-    lines = IntPrompt.ask("[#3b82f6]Lines to capture[/]", default=300)
+    lines = IntPrompt.ask("[cyan]Lines to capture[/]", default=300)
     adb_manager.capture_logcat(device_id, lines)
 
 
 def handle_ssl_check():
-    console.rule("[bold #8b5cf6]🔐 SSL Pinning Check[/]")
+    console.rule("[bold magenta]🔐 SSL Pinning Check[/]")
     device_id = select_device()
     if not device_id:
         return
-    pkg = Prompt.ask("[#3b82f6]Package name[/]")
+    pkg = Prompt.ask("[cyan]Package name[/]")
     network_scanner.check_ssl_pinning(device_id, pkg)
 
 
 def handle_file_transfer():
-    console.rule("[bold #8b5cf6]📂 File Transfer[/]")
+    console.rule("[bold magenta]📂 File Transfer[/]")
     device_id = select_device()
     if not device_id:
         return
-    direction = Prompt.ask("[#3b82f6]Direction[/]", choices=["pull", "push"])
+    direction = Prompt.ask("[cyan]Direction[/]", choices=["pull", "push"])
     if direction == "pull":
-        remote = Prompt.ask("[#3b82f6]Remote path (on device)[/]")
-        local  = Prompt.ask("[#3b82f6]Local destination[/]", default=".")
+        remote = Prompt.ask("[cyan]Remote path (on device)[/]")
+        local  = Prompt.ask("[cyan]Local destination[/]", default=".")
         adb_manager.pull_file(device_id, remote, local)
     else:
-        local  = Prompt.ask("[#3b82f6]Local file path[/]")
-        remote = Prompt.ask("[#3b82f6]Remote destination (on device)[/]")
+        local  = Prompt.ask("[cyan]Local file path[/]")
+        remote = Prompt.ask("[cyan]Remote destination (on device)[/]")
         adb_manager.push_file(device_id, local, remote)
 
 
 def handle_adb_shell():
-    console.rule("[bold #8b5cf6]💻 Interactive ADB Shell[/]")
+    console.rule("[bold magenta]💻 Interactive ADB Shell[/]")
     device_id = select_device()
     if not device_id:
         return
@@ -445,7 +441,7 @@ def handle_adb_shell():
 
 
 def handle_scrcpy():
-    console.rule("[bold #8b5cf6]🪟 scrcpy Launcher[/]")
+    console.rule("[bold magenta]🪟 scrcpy Launcher[/]")
     device_id = select_device()
     adb_manager.launch_scrcpy(device_id)
 
@@ -453,18 +449,18 @@ def handle_scrcpy():
 def handle_about():
     about = Panel(
         f"\n"
-        f"  [bold #8b5cf6]👻  {TOOL_NAME} v{VERSION}[/]\n\n"
-        f"  [bold #3b82f6]Advanced Android Penetration Testing Framework[/]\n\n"
+        f"  [bold magenta]👻  {TOOL_NAME} v{VERSION}[/]\n\n"
+        f"  [bold cyan]Advanced Android Penetration Testing Framework[/]\n\n"
         f"  [white]A comprehensive tool for ethical hackers and security professionals.\n"
         f"  Covers static APK analysis, dynamic runtime analysis via ADB,\n"
         f"  network scanning, vulnerability mapping, exploit assistance,\n"
         f"  payload generation, and professional report generation.[/]\n\n"
-        f"  [bold #8b5cf6]Author   :[/] [white]{AUTHOR}[/]\n"
-        f"  [bold #8b5cf6]Year     :[/] [white]{YEAR}[/]\n\n"
+        f"  [bold magenta]Author   :[/] [white]{AUTHOR}[/]\n"
+        f"  [bold magenta]Year     :[/] [white]{YEAR}[/]\n\n"
         f"  [bold red]⚠  For authorized penetration testing use only.[/]\n"
         f"  [dim]Unauthorized use is illegal and unethical.[/]\n",
         title="[bold]About PhantomDroid[/]",
-        border_style="#3b82f6",
+        border_style="magenta",
         padding=(0, 4),
     )
     console.print(about)
@@ -474,7 +470,7 @@ def handle_about():
 #  SESSION STORE (in-memory findings accumulator)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_SESSION = {"findings": [], "permissions": [], "secrets": [], "urls": [], "lock_screen": []}
+_SESSION = {"findings": [], "permissions": [], "secrets": [], "urls": []}
 
 
 def _save_to_session(data: dict, source: str):
@@ -492,12 +488,6 @@ def _save_to_session(data: dict, source: str):
         _SESSION["permissions"].extend(data.get("dangerous_permissions", []))
         _SESSION["secrets"].extend(data.get("secrets", []))
         _SESSION["urls"].extend(data.get("urls", []))
-        if "lock_screen" in data:
-            lock_data = data.get("lock_screen")
-            if isinstance(lock_data, list):
-                _SESSION["lock_screen"].extend(lock_data)
-            elif lock_data is not None:
-                _SESSION["lock_screen"].append(lock_data)
 
 
 def _get_session() -> dict:
@@ -531,14 +521,14 @@ HANDLER_MAP = {
 def interactive_mode():
     print_banner()
     console.print(Panel(
-        "[bold #8b5cf6]⚠  LEGAL DISCLAIMER[/]\n\n"
+        "[bold red]⚠  LEGAL DISCLAIMER[/]\n\n"
         "[white]PhantomDroid is designed for authorized security testing ONLY.\n"
         "Use of this tool against systems you do not own or have explicit written\n"
         "permission to test is [bold red]ILLEGAL[/] and may result in criminal prosecution.\n"
         "The author assumes no liability for misuse.[/]",
-        border_style="#3b82f6", padding=(0, 2)))
+        border_style="red", padding=(0, 2)))
 
-    if not Confirm.ask("\n[bold #3b82f6]I confirm I have authorization to test the target system[/]", default=False):
+    if not Confirm.ask("\n[bold red]I confirm I have authorization to test the target system[/]", default=False):
         console.print("[yellow]Exiting. Obtain proper authorization before testing.[/]")
         sys.exit(0)
 
@@ -546,10 +536,10 @@ def interactive_mode():
         console.print()
         print_main_menu()
         valid_choices = [str(i) for i in range(17)]
-        choice = Prompt.ask("\n[bold #3b82f6]PhantomDroid ▶[/]", choices=valid_choices, show_choices=False)
+        choice = Prompt.ask("\n[bold cyan]PhantomDroid ▶[/]", choices=valid_choices, show_choices=False)
 
         if choice == "0":
-            console.print("\n[bold #8b5cf6]👻 Exiting PhantomDroid. Stay ethical.[/]\n")
+            console.print("\n[bold magenta]👻 Exiting PhantomDroid. Stay ethical.[/]\n")
             sys.exit(0)
 
         handler = HANDLER_MAP.get(choice)
@@ -558,11 +548,11 @@ def interactive_mode():
                 console.print()
                 handler()
             except KeyboardInterrupt:
-                console.print("\n[#3b82f6]↩ Returned to main menu.[/]")
+                console.print("\n[yellow]↩ Returned to main menu.[/]")
             except Exception as e:
-                console.print(f"\n[bold #3b82f6]✗ Error:[/] {e}")
+                console.print(f"\n[bold red]✗ Error:[/] {e}")
         else:
-            console.print("[#3b82f6]Invalid option.[/]")
+            console.print("[red]Invalid option.[/]")
 
         console.print()
         Prompt.ask("[dim]Press ENTER to continue[/]", default="")
@@ -672,7 +662,7 @@ def cli_mode(args):
 
     # Version
     if args.version:
-        console.print(f"[bold #8b5cf6]{TOOL_NAME}[/] v[bold #3b82f6]{VERSION}[/] by [bold]{AUTHOR}[/]")
+        console.print(f"[bold magenta]{TOOL_NAME}[/] v[bold cyan]{VERSION}[/] by [bold]{AUTHOR}[/]")
         return
 
     # Devices
@@ -738,7 +728,7 @@ def cli_mode(args):
                 ports = [int(p) for p in args.ports.split(",") if p.strip().isdigit()]
             network_scanner.port_scan(target, ports)
         else:
-            console.print("[#3b82f6]Provide --target or --device for port scan.[/]")
+            console.print("[red]Provide --target or --device for port scan.[/]")
 
     if args.wifi_info and device_id:
         network_scanner.get_wifi_info(device_id)
@@ -840,5 +830,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        console.print("\n\n[bold #8b5cf6]👻 PhantomDroid interrupted. Stay ethical.[/]\n")
+        console.print("\n\n[bold magenta]👻 PhantomDroid interrupted. Stay ethical.[/]\n")
         sys.exit(0)
